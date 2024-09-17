@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import './App.css'; 
+import videoFile from './assets/background.mp4'; 
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [task, setTask] = useState("");
+  const [tasks, setTasks] = useState([]); 
+
+  // Обработчик изменения поля ввода
+  const handleInputChange = (e) => {
+    setTask(e.target.value);
+  };
+
+  // Обработчик добавления задачи
+  const handleAddTask = () => {
+    if (task.trim().length >= 3 && task.trim().length <= 200) {
+      setTasks([...tasks, task]); 
+      setTask(""); 
+    }
+  };
+
+  
+  const isAddButtonDisabled = task.trim().length < 3 || task.trim().length > 200;
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>React</h1>
+    <div className="container">
+      {/* Видео фоновое */}
+      <video autoPlay loop muted playsInline className="background-video">
+        <source src={videoFile} type="video/mp4" />
+      </video>
+
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+        <h1>To-Do List</h1>
+        <input
+          type="text"
+          value={task}
+          onChange={handleInputChange}
+          placeholder="Введите задачу"
+        />
+        <button
+          onClick={handleAddTask}
+          disabled={isAddButtonDisabled}
+        >
+          Добавить
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+        <ul>
+          {tasks.map((t, index) => (
+            <li key={index}>{t}</li>
+          ))}
+        </ul>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
