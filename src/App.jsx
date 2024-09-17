@@ -1,32 +1,55 @@
 import { useState } from "react";
-import './App.css'; 
-import videoFile from './assets/background.mp4'; 
+import './App.css';
+import videoFile from './assets/background.mp4';
 
 function App() {
-  const [task, setTask] = useState("");
-  const [tasks, setTasks] = useState([]); 
+  const [task, setTask] = useState(""); // Значение поля ввода
+  const [tasks, setTasks] = useState([]); // Список задач
+  const [editIndex, setEditIndex] = useState(null); // Индекс редактируемого элемента
 
   // Обработчик изменения поля ввода
   const handleInputChange = (e) => {
     setTask(e.target.value);
   };
 
-  // Обработчик добавления задачи
-  const handleAddTask = () => {
+  // Обработчик добавления или сохранения задачи
+  const handleAddOrUpdateTask = () => {
     if (task.trim().length >= 3 && task.trim().length <= 200) {
-      setTasks([...tasks, task]); 
-      setTask(""); 
+      if (editIndex !== null) {
+        // Обновление существующей задачи
+        const updatedTasks = tasks.map((t, index) =>
+          index === editIndex ? task : t
+        );
+        setTasks(updatedTasks);
+        setEditIndex(null); // Сброс режима редактирования
+      } else {
+        // Добавление новой задачи
+        setTasks([...tasks, task]);
+      }
+      setTask(""); // Очистка поля ввода
     }
   };
 
-  
-  const isAddButtonDisabled = task.trim().length < 3 || task.trim().length > 200;
+  // Обработчик удаления задачи
+  const handleDeleteTask = (index) => {
+    const updatedTasks = tasks.filter((_, i) => i !== index);
+    setTasks(updatedTasks);
+  };
+
+  // Обработчик редактирования задачи
+  const handleEditTask = (index) => {
+    setTask(tasks[index]);
+    setEditIndex(index); // Установка индекса редактируемого элемента
+  };
+
+  // Проверка на валидность поля ввода
+  const isButtonDisabled = task.trim().length < 3 || task.trim().length > 200;
 
   return (
     <div className="container">
-      {/* Видео фоновое */}
       <video autoPlay loop muted playsInline className="background-video">
         <source src={videoFile} type="video/mp4" />
+        Your browser does not support the video tag.
       </video>
 
       <div className="card">
@@ -38,16 +61,22 @@ function App() {
           placeholder="Введите задачу"
         />
         <button
-          onClick={handleAddTask}
-          disabled={isAddButtonDisabled}
+          onClick={handleAddOrUpdateTask}
+          disabled={isButtonDisabled}
         >
-          Добавить
+          {editIndex !== null ? "Сохранить" : "Добавить"}
         </button>
-        <ul>
-          {tasks.map((t, index) => (
-            <li key={index}>{t}</li>
-          ))}
-        </ul>
+<ul>
+  {tasks.map((t, index) => (
+    <li key={index}>
+      <input type="checkbox" />
+      {t}
+      <button onClick={() => handleEditTask(index)}>Редактировать</button>
+      <button onClick={() => handleDeleteTask(index)}>Удалить</button>
+    </li>
+  ))}
+</ul>
+
       </div>
     </div>
   );

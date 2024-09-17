@@ -66,11 +66,43 @@ ul {
 }
 
 li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
   padding: 10px;
   background-color: #f9f9f9;
   margin-bottom: 5px;
   border-radius: 5px;
   text-align: left;
+  overflow: hidden; 
+}
+
+
+input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+li button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+}
+
+li button:hover {
+  opacity: 0.8;
+}
+
+li button:nth-child(2) {
+  background-color: #007bff;
+  color: white;
+}
+
+li button:nth-child(3) {
+  background-color: #dc3545;
+  color: white;
 }
 
 #root {
