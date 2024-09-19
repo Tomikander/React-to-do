@@ -3,47 +3,54 @@ import './App.css';
 import videoFile from './assets/background.mp4';
 
 function App() {
-  const [task, setTask] = useState(""); // Значение поля ввода
-  const [tasks, setTasks] = useState([]); // Список задач
-  const [editIndex, setEditIndex] = useState(null); // Индекс редактируемого элемента
+  const [currentTaskValue, setCurrentTaskValue] = useState("");
+  const [taskList, setTaskList] = useState([]); 
+  const [completedTasks, setCompletedTasks] = useState([]);
+  const [editTaskIndex, setEditTaskIndex] = useState(null);
 
-  // Обработчик изменения поля ввода
+  // Обработчик изменения значения в поле ввода
   const handleInputChange = (e) => {
-    setTask(e.target.value);
+    setCurrentTaskValue(e.target.value);
   };
 
   // Обработчик добавления или сохранения задачи
   const handleAddOrUpdateTask = () => {
-    if (task.trim().length >= 3 && task.trim().length <= 200) {
-      if (editIndex !== null) {
-        // Обновление существующей задачи
-        const updatedTasks = tasks.map((t, index) =>
-          index === editIndex ? task : t
+    if (currentTaskValue.trim().length >= 3 && currentTaskValue.trim().length <= 200) {
+      if (editTaskIndex !== null) {
+        const updatedTaskList = taskList.map((task, index) =>
+          index === editTaskIndex ? { ...task, value: currentTaskValue } : task
         );
-        setTasks(updatedTasks);
-        setEditIndex(null); // Сброс режима редактирования
+        setTaskList(updatedTaskList);
+        setEditTaskIndex(null);
       } else {
-        // Добавление новой задачи
-        setTasks([...tasks, task]);
+        setTaskList([...taskList, { value: currentTaskValue, completed: false }]);
       }
-      setTask(""); // Очистка поля ввода
+      setCurrentTaskValue("");
     }
   };
 
   // Обработчик удаления задачи
   const handleDeleteTask = (index) => {
-    const updatedTasks = tasks.filter((_, i) => i !== index);
-    setTasks(updatedTasks);
+    const updatedTaskList = taskList.filter((_, i) => i !== index);
+    setTaskList(updatedTaskList);
   };
 
   // Обработчик редактирования задачи
   const handleEditTask = (index) => {
-    setTask(tasks[index]);
-    setEditIndex(index); // Установка индекса редактируемого элемента
+    setCurrentTaskValue(taskList[index].value);
+    setEditTaskIndex(index);
+  };
+
+  // Обработчик выполнения задачи
+  const handleTaskCompletion = (index) => {
+    const completedTask = taskList[index];
+    const updatedTaskList = taskList.filter((_, i) => i !== index);
+    setTaskList(updatedTaskList);
+    setCompletedTasks([...completedTasks, completedTask]);
   };
 
   // Проверка на валидность поля ввода
-  const isButtonDisabled = task.trim().length < 3 || task.trim().length > 200;
+  const isButtonDisabled = currentTaskValue.trim().length < 3 || currentTaskValue.trim().length > 200;
 
   return (
     <div className="container">
@@ -53,30 +60,62 @@ function App() {
       </video>
 
       <div className="card">
-        <h1>To-Do List</h1>
+        <h1 className="header">To-Do List</h1>
         <input
+          className="input-task"
           type="text"
-          value={task}
+          value={currentTaskValue}
           onChange={handleInputChange}
           placeholder="Введите задачу"
         />
         <button
+          className="add-btn"
           onClick={handleAddOrUpdateTask}
           disabled={isButtonDisabled}
         >
-          {editIndex !== null ? "Сохранить" : "Добавить"}
+          {editTaskIndex !== null ? "Сохранить" : "Добавить"}
         </button>
-<ul>
-  {tasks.map((t, index) => (
-    <li key={index}>
-      <input type="checkbox" />
-      {t}
-      <button onClick={() => handleEditTask(index)}>Редактировать</button>
-      <button onClick={() => handleDeleteTask(index)}>Удалить</button>
-    </li>
-  ))}
-</ul>
 
+        <ul className="task-list">
+          {taskList.map((task, index) => (
+            <li className="task-item" key={index}>
+              <input
+                className="checkbox"
+                type="checkbox"
+                onChange={() => handleTaskCompletion(index)}
+              />
+              <span className="task-text">{task.value}</span>
+              <button
+                className="edit-btn"
+                onClick={() => handleEditTask(index)}
+                disabled={currentTaskValue !== ""}
+                title={currentTaskValue !== "" ? "Очистите поле ввода" : ""}
+              >
+                Редактировать
+              </button>
+              <button
+                className="delete-btn"
+                onClick={() => handleDeleteTask(index)}
+              >
+                Удалить
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {/* Список выполненных задач */}
+        {completedTasks.length > 0 && (
+          <>
+            <h2>Готово</h2>
+            <ul className="completed-task-list">
+              {completedTasks.map((task, index) => (
+                <li className="task-item" key={index}>
+                  <span className="completed-task-text">{task.value}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
     </div>
   );
